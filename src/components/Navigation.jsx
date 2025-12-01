@@ -48,7 +48,7 @@ const Navigation = () => {
                   : "text-gray-700 hover:bg-gray-100"
               }`}
             >
-              📚 الجلسات
+              📚 الحصص
             </Link>
             <button
               onClick={() => {

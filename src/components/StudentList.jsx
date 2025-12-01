@@ -38,7 +38,7 @@ const StudentList = () => {
   const handleDelete = async (id) => {
     if (
       window.confirm(
-        "هل أنت متأكد من حذف هذا الطالب؟ سيتم حذف جميع الجلسات المرتبطة به."
+        "هل أنت متأكد من حذف هذا الطالب؟ سيتم حذف جميع الحصص المرتبطة به."
       )
     ) {
       try {
@@ -67,7 +67,7 @@ const StudentList = () => {
                 العمر
               </th>
               <th className="text-right p-3 md:p-4 font-bold text-gray-700 whitespace-nowrap">
-                عدد الجلسات
+                عدد الحصص
               </th>
               <th className="text-right p-3 md:p-4 font-bold text-gray-700 whitespace-nowrap">
                 الإجراءات
