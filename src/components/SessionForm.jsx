@@ -79,23 +79,25 @@ const SessionForm = () => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto mt-10">
-      <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">
-        تسجيل جلسة قرآن
+    <div className="bg-white/90 backdrop-blur-lg border border-gray-200 shadow-2xl rounded-2xl p-4 md:p-8 w-full max-w-3xl mx-auto mb-8">
+      <h2 className="text-3xl font-bold mb-6 text-center bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+        📝 تسجيل جلسة قرآن
       </h2>
       {message && (
         <p
-          className={`text-center mb-4 ${
-            message.includes("خطأ") ? "text-red-500" : "text-green-500"
+          className={`text-center mb-4 p-3 rounded-lg font-semibold ${
+            message.includes("خطأ")
+              ? "bg-red-50 text-red-600 border-r-4 border-red-500"
+              : "bg-green-50 text-green-600 border-r-4 border-green-500"
           }`}
         >
           {message}
         </p>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-gray-700 font-medium mb-1">
+          <label className="block text-gray-700 font-semibold mb-2">
             اسم الطالب
           </label>
           <div className="flex gap-2">
@@ -103,7 +105,7 @@ const SessionForm = () => {
               name="student_name"
               value={formData.student_name}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
             >
               {students.map((student) => (
                 <option key={student.id} value={student.name}>
@@ -114,7 +116,7 @@ const SessionForm = () => {
             <button
               type="button"
               onClick={() => setShowAddStudent(!showAddStudent)}
-              className="bg-gray-200 text-gray-700 px-3 py-2 rounded hover:bg-gray-300"
+              className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white w-[54px] h-[56px] rounded-xl font-bold text-xl shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center"
               title="إضافة طالب جديد"
             >
               +
@@ -123,62 +125,78 @@ const SessionForm = () => {
         </div>
 
         {showAddStudent && (
-          <div className="bg-gray-50 p-3 rounded border border-gray-200">
-            <label className="block text-sm text-gray-600 mb-1">
-              اسم الطالب الجديد
-            </label>
-            <div className="flex gap-2 mb-2">
-              <input
-                type="text"
-                value={newStudentName}
-                onChange={(e) => setNewStudentName(e.target.value)}
-                className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-                placeholder="أدخل الاسم"
-              />
+          <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+            <h3 className="text-sm font-bold mb-3 text-blue-800">
+              إضافة طالب جديد
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">
+                  الاسم
+                </label>
+                <input
+                  type="text"
+                  value={newStudentName}
+                  onChange={(e) => setNewStudentName(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none text-sm"
+                  placeholder="أدخل الاسم"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">
+                  العمر (اختياري)
+                </label>
+                <input
+                  type="number"
+                  value={newStudentAge}
+                  onChange={(e) => setNewStudentAge(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none text-sm"
+                  placeholder="أدخل العمر"
+                />
+              </div>
             </div>
-            <label className="block text-sm text-gray-600 mb-1">العمر</label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                value={newStudentAge}
-                onChange={(e) => setNewStudentAge(e.target.value)}
-                className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-                placeholder="أدخل العمر (اختياري)"
-              />
+            <div className="mt-3 flex gap-2">
               <button
                 type="button"
                 onClick={handleAddStudent}
-                className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 text-sm"
               >
-                إضافة
+                ✅ إضافة
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAddStudent(false)}
+                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 text-sm"
+              >
+                ❌ إلغاء
               </button>
             </div>
           </div>
         )}
 
         <div>
-          <label className="block text-gray-700 font-medium mb-1">
-            درس جديد
+          <label className="block text-gray-700 font-semibold mb-2">
+            الدرس الجديد
           </label>
           <input
-            type="text"
             name="new_lesson"
             value={formData.new_lesson}
             onChange={handleChange}
             placeholder="مثال: القلم 1:42"
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
             required
           />
         </div>
+
         <div>
-          <label className="block text-gray-700 font-medium mb-1">
+          <label className="block text-gray-700 font-semibold mb-2">
             المستوى
           </label>
           <select
             name="level"
             value={formData.level}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
           >
             <option value="إعادة">إعادة</option>
             <option value="⏳ انتظار">⏳ انتظار</option>
@@ -189,27 +207,30 @@ const SessionForm = () => {
             <option value="ضعيف">ضعيف</option>
           </select>
         </div>
+
         <div>
-          <label className="block text-gray-700 font-medium mb-1">مراجعة</label>
+          <label className="block text-gray-700 font-semibold mb-2">
+            المراجعة
+          </label>
           <input
-            type="text"
             name="review"
             value={formData.review}
             onChange={handleChange}
             placeholder="مثال: الملك"
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
             required
           />
         </div>
+
         <div>
-          <label className="block text-gray-700 font-medium mb-1">
+          <label className="block text-gray-700 font-semibold mb-2">
             المستوى
           </label>
           <select
             name="review_level"
             value={formData.review_level}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
           >
             <option value="إعادة">إعادة</option>
             <option value="⏳ انتظار">⏳ انتظار</option>
@@ -222,7 +243,7 @@ const SessionForm = () => {
         </div>
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition duration-200"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 text-lg"
         >
           حفظ الجلسة
         </button>

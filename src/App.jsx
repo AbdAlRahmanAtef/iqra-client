@@ -5,22 +5,41 @@ import HomePage from "./pages/HomePage";
 import StudentsPage from "./pages/StudentsPage";
 import SessionsPage from "./pages/SessionsPage";
 
+import LoginPage from "./pages/LoginPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-100 py-10 px-4">
-        <header className="text-center mb-10">
-          <h1 className="text-4xl font-extrabold text-gray-900">
-            نظام متابعة حلقات القرآن
-          </h1>
-          <p className="text-gray-600 mt-2">متابعة تقدم الطلاب</p>
-        </header>
+      <div className="min-h-screen">
         <Navigation />
-        <main className="container mx-auto">
+        <main className="container mx-auto px-4 md:px-6 lg:px-8 py-6">
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/students" element={<StudentsPage />} />
-            <Route path="/sessions" element={<SessionsPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/students"
+              element={
+                <ProtectedRoute>
+                  <StudentsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/sessions"
+              element={
+                <ProtectedRoute>
+                  <SessionsPage />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </main>
       </div>

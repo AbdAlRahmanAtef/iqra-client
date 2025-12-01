@@ -5,7 +5,7 @@ import StudentReportControls from "../components/StudentReportControls";
 
 const HomePage = () => {
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8 max-w-7xl mx-auto">
       <SessionForm />
       <ReportControls />
       <StudentReportControls />
