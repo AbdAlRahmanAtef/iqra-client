@@ -13,7 +13,7 @@ const LoginPage = () => {
     try {
       const response = await api.post("/login", { email, password });
       localStorage.setItem("token", response.data.token);
-      navigate("/dashboard");
+      navigate("/");
     } catch (err) {
       setError("بيانات الدخول غير صحيحة");
     }
