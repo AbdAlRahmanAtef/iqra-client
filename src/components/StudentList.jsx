@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import api from "../api";
+import StudentDetailsModal from "./StudentDetailsModal";
 
 const StudentList = () => {
   const [students, setStudents] = useState([]);
   const [editingStudent, setEditingStudent] = useState(null);
   const [editForm, setEditForm] = useState({ name: "", age: "" });
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
   useEffect(() => {
     fetchStudents();
@@ -140,6 +142,12 @@ const StudentList = () => {
                     <td className="p-3 md:p-4">
                       <div className="flex gap-2">
                         <button
+                          onClick={() => setSelectedStudent(student)}
+                          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
+                        >
+                          📋 التفاصيل
+                        </button>
+                        <button
                           onClick={() => handleEdit(student)}
                           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
                         >
@@ -160,6 +168,12 @@ const StudentList = () => {
           </tbody>
         </table>
       </div>
+      {selectedStudent && (
+        <StudentDetailsModal
+          student={selectedStudent}
+          onClose={() => setSelectedStudent(null)}
+        />
+      )}
     </div>
   );
 };
