@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import api from "../api";
 import StudentDetailsModal from "./StudentDetailsModal";
+import LoadingSpinner from "./LoadingSpinner";
 
 const StudentList = () => {
   const [students, setStudents] = useState([]);
@@ -8,16 +9,21 @@ const StudentList = () => {
   const [editForm, setEditForm] = useState({ name: "", age: "" });
   const [selectedStudent, setSelectedStudent] = useState(null);
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     fetchStudents();
   }, []);
 
   const fetchStudents = async () => {
+    setLoading(true);
     try {
       const response = await api.get("/students");
       setStudents(response.data);
     } catch (error) {
       console.error("Error fetching students:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -81,94 +87,102 @@ const StudentList = () => {
             </tr>
           </thead>
           <tbody className="bg-white">
-            {students.map((student) => (
-              <tr
-                key={student._id}
-                className="border-b border-gray-100 hover:bg-blue-50 transition duration-200"
-              >
-                {editingStudent === student._id ? (
-                  <>
-                    <td className="p-3 md:p-4">
-                      <input
-                        type="text"
-                        value={editForm.name}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, name: e.target.value })
-                        }
-                        className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
-                      />
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <input
-                        type="number"
-                        value={editForm.age}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, age: e.target.value })
-                        }
-                        className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
-                      />
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <span className="inline-block text-indigo-800 px-3 py-1 text-sm font-medium">
-                        {student.session_count}
-                      </span>
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleUpdate(student._id)}
-                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
-                        >
-                          ✅ حفظ
-                        </button>
-                        <button
-                          onClick={() => setEditingStudent(null)}
-                          className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
-                        >
-                          ❌ إلغاء
-                        </button>
-                      </div>
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td className="p-3 md:p-4 font-semibold text-blue-700 text-lg">
-                      {student.name}
-                    </td>
-                    <td className="p-3 md:p-4 text-gray-600">
-                      {student.age || "-"}
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <span className="inline-block text-indigo-800 px-3 py-1 rounded-full text-sm font-medium">
-                        {student.session_count}
-                      </span>
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setSelectedStudent(student)}
-                          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
-                        >
-                          📋 التفاصيل
-                        </button>
-                        <button
-                          onClick={() => handleEdit(student)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
-                        >
-                          تعديل
-                        </button>
-                        <button
-                          onClick={() => handleDelete(student._id)}
-                          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
-                        >
-                          حذف
-                        </button>
-                      </div>
-                    </td>
-                  </>
-                )}
+            {loading ? (
+              <tr>
+                <td colSpan="4">
+                  <LoadingSpinner />
+                </td>
               </tr>
-            ))}
+            ) : (
+              students.map((student) => (
+                <tr
+                  key={student._id}
+                  className="border-b border-gray-100 hover:bg-blue-50 transition duration-200"
+                >
+                  {editingStudent === student._id ? (
+                    <>
+                      <td className="p-3 md:p-4">
+                        <input
+                          type="text"
+                          value={editForm.name}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, name: e.target.value })
+                          }
+                          className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
+                        />
+                      </td>
+                      <td className="p-3 md:p-4">
+                        <input
+                          type="number"
+                          value={editForm.age}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, age: e.target.value })
+                          }
+                          className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
+                        />
+                      </td>
+                      <td className="p-3 md:p-4">
+                        <span className="inline-block text-indigo-800 px-3 py-1 text-sm font-medium">
+                          {student.session_count}
+                        </span>
+                      </td>
+                      <td className="p-3 md:p-4">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleUpdate(student._id)}
+                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
+                          >
+                            ✅ حفظ
+                          </button>
+                          <button
+                            onClick={() => setEditingStudent(null)}
+                            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
+                          >
+                            ❌ إلغاء
+                          </button>
+                        </div>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="p-3 md:p-4 font-semibold text-blue-700 text-lg">
+                        {student.name}
+                      </td>
+                      <td className="p-3 md:p-4 text-gray-600">
+                        {student.age || "-"}
+                      </td>
+                      <td className="p-3 md:p-4">
+                        <span className="inline-block text-indigo-800 px-3 py-1 rounded-full text-sm font-medium">
+                          {student.session_count}
+                        </span>
+                      </td>
+                      <td className="p-3 md:p-4">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setSelectedStudent(student)}
+                            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
+                          >
+                            📋 التفاصيل
+                          </button>
+                          <button
+                            onClick={() => handleEdit(student)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
+                          >
+                            تعديل
+                          </button>
+                          <button
+                            onClick={() => handleDelete(student._id)}
+                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
+                          >
+                            حذف
+                          </button>
+                        </div>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

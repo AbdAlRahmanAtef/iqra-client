@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../api";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const SessionsPage = () => {
   const [sessions, setSessions] = useState([]);
@@ -14,9 +15,20 @@ const SessionsPage = () => {
     date_gregorian: "",
   });
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    fetchSessions();
-    fetchStudents();
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([fetchSessions(), fetchStudents()]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   const fetchSessions = async () => {
@@ -112,175 +124,183 @@ const SessionsPage = () => {
             </tr>
           </thead>
           <tbody className="bg-white">
-            {sessions.map((session) => (
-              <tr
-                key={session._id}
-                className="border-b border-gray-100 hover:bg-blue-50 transition duration-200"
-              >
-                {editingSession === session._id ? (
-                  <>
-                    <td className="p-3 md:p-4">
-                      <input
-                        type="date"
-                        value={editForm.date_gregorian}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            date_gregorian: e.target.value,
-                          })
-                        }
-                        className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
-                      />
-                    </td>
-                    <td className="p-3 md:p-4">
-                      {new Date(editForm.date_gregorian).toLocaleDateString(
-                        "en-GB"
-                      )}
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <select
-                        value={editForm.student_name}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            student_name: e.target.value,
-                          })
-                        }
-                        className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
-                      >
-                        {students.map((student) => (
-                          <option key={student._id} value={student.name}>
-                            {student.name}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <input
-                        type="text"
-                        value={editForm.new_lesson}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            new_lesson: e.target.value,
-                          })
-                        }
-                        className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
-                      />
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <select
-                        value={editForm.level}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, level: e.target.value })
-                        }
-                        className="border border-gray-300 rounded-lg px-4 py-2 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
-                      >
-                        <option value="إعادة">إعادة</option>
-                        <option value="⏳ انتظار">⏳ انتظار</option>
-                        <option value="ممتاز">ممتاز</option>
-                        <option value="جيد جدا">جيد جدا</option>
-                        <option value="جيد">جيد</option>
-                        <option value="مقبول">مقبول</option>
-                        <option value="ضعيف">ضعيف</option>
-                      </select>
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <input
-                        type="text"
-                        value={editForm.review}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, review: e.target.value })
-                        }
-                        className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
-                      />
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <select
-                        value={editForm.review_level}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            review_level: e.target.value,
-                          })
-                        }
-                        className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
-                      >
-                        <option value="إعادة">إعادة</option>
-                        <option value="⏳ انتظار">⏳ انتظار</option>
-                        <option value="ممتاز">ممتاز</option>
-                        <option value="جيد جدا">جيد جدا</option>
-                        <option value="جيد">جيد</option>
-                        <option value="مقبول">مقبول</option>
-                        <option value="ضعيف">ضعيف</option>
-                      </select>
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleUpdate(session._id)}
-                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
-                        >
-                          ✅ حفظ
-                        </button>
-                        <button
-                          onClick={() => setEditingSession(null)}
-                          className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
-                        >
-                          ❌ إلغاء
-                        </button>
-                      </div>
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td className="p-3 md:p-4 font-medium text-gray-700">
-                      {session.date_hijri}
-                    </td>
-                    <td className="p-3 md:p-4 text-gray-600">
-                      {new Date(session.date_gregorian).toLocaleDateString(
-                        "en-GB"
-                      )}
-                    </td>
-                    <td className="p-3 md:p-4 font-semibold text-blue-700">
-                      {session.student_name}
-                    </td>
-                    <td className="p-3 md:p-4 text-gray-700">
-                      {session.new_lesson}
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <span className="inline-block text-blue-800 px-2 py-1 rounded-full text-sm font-medium">
-                        {session.level}
-                      </span>
-                    </td>
-                    <td className="p-3 md:p-4 text-gray-700">
-                      {session.review}
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <span className="inline-block text-purple-800 px-2 py-1 rounded-full text-sm font-medium">
-                        {session.review_level || "-"}
-                      </span>
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEdit(session)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
-                        >
-                          تعديل
-                        </button>
-                        <button
-                          onClick={() => handleDelete(session._id)}
-                          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
-                        >
-                          حذف
-                        </button>
-                      </div>
-                    </td>
-                  </>
-                )}
+            {loading ? (
+              <tr>
+                <td colSpan="8">
+                  <LoadingSpinner />
+                </td>
               </tr>
-            ))}
+            ) : (
+              sessions.map((session) => (
+                <tr
+                  key={session._id}
+                  className="border-b border-gray-100 hover:bg-blue-50 transition duration-200"
+                >
+                  {editingSession === session._id ? (
+                    <>
+                      <td className="p-3 md:p-4">
+                        <input
+                          type="date"
+                          value={editForm.date_gregorian}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              date_gregorian: e.target.value,
+                            })
+                          }
+                          className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
+                        />
+                      </td>
+                      <td className="p-3 md:p-4">
+                        {new Date(editForm.date_gregorian).toLocaleDateString(
+                          "en-GB"
+                        )}
+                      </td>
+                      <td className="p-3 md:p-4">
+                        <select
+                          value={editForm.student_name}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              student_name: e.target.value,
+                            })
+                          }
+                          className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
+                        >
+                          {students.map((student) => (
+                            <option key={student._id} value={student.name}>
+                              {student.name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="p-3 md:p-4">
+                        <input
+                          type="text"
+                          value={editForm.new_lesson}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              new_lesson: e.target.value,
+                            })
+                          }
+                          className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
+                        />
+                      </td>
+                      <td className="p-3 md:p-4">
+                        <select
+                          value={editForm.level}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, level: e.target.value })
+                          }
+                          className="border border-gray-300 rounded-lg px-4 py-2 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
+                        >
+                          <option value="إعادة">إعادة</option>
+                          <option value="⏳ انتظار">⏳ انتظار</option>
+                          <option value="ممتاز">ممتاز</option>
+                          <option value="جيد جدا">جيد جدا</option>
+                          <option value="جيد">جيد</option>
+                          <option value="مقبول">مقبول</option>
+                          <option value="ضعيف">ضعيف</option>
+                        </select>
+                      </td>
+                      <td className="p-3 md:p-4">
+                        <input
+                          type="text"
+                          value={editForm.review}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, review: e.target.value })
+                          }
+                          className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
+                        />
+                      </td>
+                      <td className="p-3 md:p-4">
+                        <select
+                          value={editForm.review_level}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              review_level: e.target.value,
+                            })
+                          }
+                          className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
+                        >
+                          <option value="إعادة">إعادة</option>
+                          <option value="⏳ انتظار">⏳ انتظار</option>
+                          <option value="ممتاز">ممتاز</option>
+                          <option value="جيد جدا">جيد جدا</option>
+                          <option value="جيد">جيد</option>
+                          <option value="مقبول">مقبول</option>
+                          <option value="ضعيف">ضعيف</option>
+                        </select>
+                      </td>
+                      <td className="p-3 md:p-4">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleUpdate(session._id)}
+                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
+                          >
+                            ✅ حفظ
+                          </button>
+                          <button
+                            onClick={() => setEditingSession(null)}
+                            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
+                          >
+                            ❌ إلغاء
+                          </button>
+                        </div>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="p-3 md:p-4 font-medium text-gray-700">
+                        {session.date_hijri}
+                      </td>
+                      <td className="p-3 md:p-4 text-gray-600">
+                        {new Date(session.date_gregorian).toLocaleDateString(
+                          "en-GB"
+                        )}
+                      </td>
+                      <td className="p-3 md:p-4 font-semibold text-blue-700">
+                        {session.student_name}
+                      </td>
+                      <td className="p-3 md:p-4 text-gray-700">
+                        {session.new_lesson}
+                      </td>
+                      <td className="p-3 md:p-4">
+                        <span className="inline-block text-blue-800 px-2 py-1 rounded-full text-sm font-medium">
+                          {session.level}
+                        </span>
+                      </td>
+                      <td className="p-3 md:p-4 text-gray-700">
+                        {session.review}
+                      </td>
+                      <td className="p-3 md:p-4">
+                        <span className="inline-block text-purple-800 px-2 py-1 rounded-full text-sm font-medium">
+                          {session.review_level || "-"}
+                        </span>
+                      </td>
+                      <td className="p-3 md:p-4">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEdit(session)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
+                          >
+                            تعديل
+                          </button>
+                          <button
+                            onClick={() => handleDelete(session._id)}
+                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
+                          >
+                            حذف
+                          </button>
+                        </div>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../api";
+import LoadingSpinner from "./LoadingSpinner";
 
 const StudentDetailsModal = ({ student, onClose }) => {
   const [sessions, setSessions] = useState([]);
@@ -12,18 +13,53 @@ const StudentDetailsModal = ({ student, onClose }) => {
     date_gregorian: "",
   });
 
+  const [loading, setLoading] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [addForm, setAddForm] = useState({
+    new_lesson: "",
+    review: "",
+    level: "جيد",
+    review_level: "جيد",
+  });
+
   useEffect(() => {
     if (student) {
       fetchStudentSessions();
+      setShowAddForm(false); // Reset form visibility when student changes
     }
   }, [student]);
 
   const fetchStudentSessions = async () => {
+    setLoading(true);
     try {
       const response = await api.get(`/session/student/${student.name}`);
       setSessions(response.data);
     } catch (error) {
       console.error("Error fetching student sessions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddSession = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post("/session", {
+        ...addForm,
+        student_name: student.name,
+      });
+      setAddForm({
+        new_lesson: "",
+        review: "",
+        level: "جيد",
+        review_level: "جيد",
+      });
+      setShowAddForm(false);
+      fetchStudentSessions();
+      alert("تم إضافة الحصة بنجاح");
+    } catch (error) {
+      console.error("Error adding session:", error);
+      alert("خطأ في إضافة الحصة");
     }
   };
 
@@ -78,9 +114,18 @@ const StudentDetailsModal = ({ student, onClose }) => {
           className="p-6 border-b border-gray-200 flex justify-between items-center bg-blue-600 rounded-t-2xl"
           style={{ flexShrink: 0 }}
         >
-          <h2 className="text-2xl font-bold" style={{ color: "white" }}>
-            سجل الطالب: <span style={{ color: "#bfdbfe" }}>{student.name}</span>
-          </h2>
+          <div className="flex items-center gap-4">
+            <h2 className="text-2xl font-bold" style={{ color: "white" }}>
+              سجل الطالب:{" "}
+              <span style={{ color: "#bfdbfe" }}>{student.name}</span>
+            </h2>
+            <button
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="bg-white text-blue-600 px-4 py-2 rounded-lg font-bold hover:bg-blue-50 transition-colors shadow-sm flex items-center gap-2"
+            >
+              {showAddForm ? "❌ إلغاء" : "➕ إضافة حصة جديدة"}
+            </button>
+          </div>
           <button
             onClick={onClose}
             className="text-white hover:bg-white/20 transition-all rounded-full w-10 h-10 flex items-center justify-center text-2xl font-bold"
@@ -88,6 +133,93 @@ const StudentDetailsModal = ({ student, onClose }) => {
             ×
           </button>
         </div>
+
+        {/* Add Session Form */}
+        {showAddForm && (
+          <div className="p-6 bg-blue-50 border-b border-blue-100">
+            <form
+              onSubmit={handleAddSession}
+              className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end"
+            >
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  الدرس الجديد
+                </label>
+                <input
+                  type="text"
+                  value={addForm.new_lesson}
+                  onChange={(e) =>
+                    setAddForm({ ...addForm, new_lesson: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 outline-none"
+                  placeholder="مثال: القلم 1:42"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  المستوى
+                </label>
+                <select
+                  value={addForm.level}
+                  onChange={(e) =>
+                    setAddForm({ ...addForm, level: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 outline-none"
+                >
+                  <option value="إعادة">إعادة</option>
+                  <option value="⏳ انتظار">⏳ انتظار</option>
+                  <option value="ممتاز">ممتاز</option>
+                  <option value="جيد جدا">جيد جدا</option>
+                  <option value="جيد">جيد</option>
+                  <option value="مقبول">مقبول</option>
+                  <option value="ضعيف">ضعيف</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  المراجعة
+                </label>
+                <input
+                  type="text"
+                  value={addForm.review}
+                  onChange={(e) =>
+                    setAddForm({ ...addForm, review: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 outline-none"
+                  placeholder="مثال: الملك"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  المستوى
+                </label>
+                <select
+                  value={addForm.review_level}
+                  onChange={(e) =>
+                    setAddForm({ ...addForm, review_level: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 outline-none"
+                >
+                  <option value="إعادة">إعادة</option>
+                  <option value="⏳ انتظار">⏳ انتظار</option>
+                  <option value="ممتاز">ممتاز</option>
+                  <option value="جيد جدا">جيد جدا</option>
+                  <option value="جيد">جيد</option>
+                  <option value="مقبول">مقبول</option>
+                  <option value="ضعيف">ضعيف</option>
+                </select>
+              </div>
+              <button
+                type="submit"
+                className="bg-green-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700 transition-colors shadow-md h-[42px]"
+              >
+                حفظ
+              </button>
+            </form>
+          </div>
+        )}
 
         {/* Table Container - Scrollable */}
         <div className="p-6" style={{ overflowY: "auto", flex: 1 }}>
@@ -119,7 +251,13 @@ const StudentDetailsModal = ({ student, onClose }) => {
                 </tr>
               </thead>
               <tbody className="bg-white">
-                {sessions.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan="6">
+                      <LoadingSpinner />
+                    </td>
+                  </tr>
+                ) : sessions.length === 0 ? (
                   <tr>
                     <td colSpan="6" className="text-center p-8 text-gray-500">
                       لا توجد حصص مسجلة لهذا الطالب
@@ -277,10 +415,10 @@ const StudentDetailsModal = ({ student, onClose }) => {
             </table>
           </div>
         </div>
-        <div className="p-4 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 flex justify-end">
+        <div className="p-4 border-t border-gray-200 bg-linear-to-r from-gray-50 to-gray-100 flex justify-end">
           <button
             onClick={onClose}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-2.5 rounded-xl font-semibold transition duration-200 shadow-md hover:shadow-lg"
+            className="bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-2.5 rounded-xl font-semibold transition duration-200 shadow-md hover:shadow-lg"
           >
             إغلاق
           </button>
