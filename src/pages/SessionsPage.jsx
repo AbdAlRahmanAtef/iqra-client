@@ -74,8 +74,12 @@ const SessionsPage = () => {
 
   return (
     <div className="bg-white/90 backdrop-blur-lg border border-gray-200 shadow-2xl rounded-2xl p-4 md:p-8 w-full max-w-7xl mx-auto">
-      <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-        📋 إدارة الحصص
+      <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center ">
+        📋{" "}
+        <span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          {" "}
+          إدارة الحصص
+        </span>{" "}
       </h2>
       <div className="overflow-x-auto rounded-xl border border-gray-200">
         <table className="w-full min-w-max">

@@ -80,8 +80,12 @@ const SessionForm = () => {
 
   return (
     <div className="bg-white/90 backdrop-blur-lg border border-gray-200 shadow-2xl rounded-2xl p-4 md:p-8 w-full max-w-3xl mx-auto mb-8">
-      <h2 className="text-3xl font-bold mb-6 text-center bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-        📝 تسجيل جلسة قرآن
+      <h2 className="text-3xl font-bold mb-6 text-center ">
+        📝
+        <span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          {" "}
+          تسجيل جلسة قرآن
+        </span>{" "}
       </h2>
       {message && (
         <p

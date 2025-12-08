@@ -68,8 +68,11 @@ const StudentReportControls = () => {
 
   return (
     <div className="bg-white/90 backdrop-blur-lg border border-gray-200 shadow-2xl rounded-2xl p-4 md:p-8 w-full max-w-6xl mx-auto mt-8">
-      <h3 className="text-xl md:text-2xl font-bold mb-6 text-center bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-        📋 تقارير الطلاب الفردية
+      <h3 className="text-xl md:text-2xl font-bold mb-6 text-center">
+        📋{" "}
+        <span className="bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          تقارير الطلاب الفردية
+        </span>
       </h3>
 
       {/* Date Selector */}
