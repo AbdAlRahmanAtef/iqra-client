@@ -22,7 +22,7 @@ const StudentList = () => {
   };
 
   const handleEdit = (student) => {
-    setEditingStudent(student.id);
+    setEditingStudent(student._id);
     setEditForm({ name: student.name, age: student.age || "" });
   };
 
@@ -79,10 +79,10 @@ const StudentList = () => {
           <tbody className="bg-white">
             {students.map((student) => (
               <tr
-                key={student.id}
+                key={student._id}
                 className="border-b border-gray-100 hover:bg-blue-50 transition duration-200"
               >
-                {editingStudent === student.id ? (
+                {editingStudent === student._id ? (
                   <>
                     <td className="p-3 md:p-4">
                       <input
@@ -112,7 +112,7 @@ const StudentList = () => {
                     <td className="p-3 md:p-4">
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleUpdate(student.id)}
+                          onClick={() => handleUpdate(student._id)}
                           className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
                         >
                           ✅ حفظ
@@ -154,7 +154,7 @@ const StudentList = () => {
                           تعديل
                         </button>
                         <button
-                          onClick={() => handleDelete(student.id)}
+                          onClick={() => handleDelete(student._id)}
                           className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
                         >
                           حذف

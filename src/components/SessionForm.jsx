@@ -108,7 +108,7 @@ const SessionForm = () => {
               className="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
             >
               {students.map((student) => (
-                <option key={student.id} value={student.name}>
+                <option key={student._id} value={student.name}>
                   {student.name}
                 </option>
               ))}

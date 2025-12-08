@@ -28,7 +28,7 @@ const StudentDetailsModal = ({ student, onClose }) => {
   };
 
   const handleEdit = (session) => {
-    setEditingSession(session.id);
+    setEditingSession(session._id);
     setEditForm({
       new_lesson: session.new_lesson,
       review: session.review,
@@ -116,10 +116,10 @@ const StudentDetailsModal = ({ student, onClose }) => {
               ) : (
                 sessions.map((session) => (
                   <tr
-                    key={session.id}
+                    key={session._id}
                     className="border-b border-gray-100 hover:bg-blue-50 transition duration-200"
                   >
-                    {editingSession === session.id ? (
+                    {editingSession === session._id ? (
                       <>
                         <td className="p-3">
                           <input
@@ -203,7 +203,7 @@ const StudentDetailsModal = ({ student, onClose }) => {
                         <td className="p-3">
                           <div className="flex gap-2">
                             <button
-                              onClick={() => handleUpdate(session.id)}
+                              onClick={() => handleUpdate(session._id)}
                               className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
                             >
                               حفظ
@@ -247,7 +247,7 @@ const StudentDetailsModal = ({ student, onClose }) => {
                               تعديل
                             </button>
                             <button
-                              onClick={() => handleDelete(session.id)}
+                              onClick={() => handleDelete(session._id)}
                               className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
                             >
                               حذف

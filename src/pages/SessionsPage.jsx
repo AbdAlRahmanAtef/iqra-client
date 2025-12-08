@@ -38,7 +38,7 @@ const SessionsPage = () => {
   };
 
   const handleEdit = (session) => {
-    setEditingSession(session.id);
+    setEditingSession(session._id);
     setEditForm({
       student_name: session.student_name,
       new_lesson: session.new_lesson,
@@ -110,10 +110,10 @@ const SessionsPage = () => {
           <tbody className="bg-white">
             {sessions.map((session) => (
               <tr
-                key={session.id}
+                key={session._id}
                 className="border-b border-gray-100 hover:bg-blue-50 transition duration-200"
               >
-                {editingSession === session.id ? (
+                {editingSession === session._id ? (
                   <>
                     <td className="p-3 md:p-4">
                       <input
@@ -145,7 +145,7 @@ const SessionsPage = () => {
                         className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
                       >
                         {students.map((student) => (
-                          <option key={student.id} value={student.name}>
+                          <option key={student._id} value={student.name}>
                             {student.name}
                           </option>
                         ))}
@@ -214,7 +214,7 @@ const SessionsPage = () => {
                     <td className="p-3 md:p-4">
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleUpdate(session.id)}
+                          onClick={() => handleUpdate(session._id)}
                           className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
                         >
                           ✅ حفظ
@@ -266,7 +266,7 @@ const SessionsPage = () => {
                           تعديل
                         </button>
                         <button
-                          onClick={() => handleDelete(session.id)}
+                          onClick={() => handleDelete(session._id)}
                           className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
                         >
                           حذف
