@@ -4,6 +4,14 @@ import api from "../api";
 const StudentReportControls = () => {
   const [students, setStudents] = useState([]);
   const [loadingStudent, setLoadingStudent] = useState(null);
+  const [startDate, setStartDate] = useState(() => {
+    // Default to first day of current month
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-01`;
+  });
 
   useEffect(() => {
     fetchStudents();
@@ -21,8 +29,11 @@ const StudentReportControls = () => {
   const downloadStudentReport = async (studentName) => {
     setLoadingStudent(studentName);
     try {
+      console.log(`Generating report for ${studentName} from ${startDate}`);
       const response = await api.get(
-        `/report/student/${encodeURIComponent(studentName)}`,
+        `/report/student/${encodeURIComponent(
+          studentName
+        )}?startDate=${startDate}&t=${Date.now()}`,
         {
           responseType: "blob",
         }
@@ -45,11 +56,40 @@ const StudentReportControls = () => {
     }
   };
 
+  // Format date for display
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("ar-EG", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
   return (
     <div className="bg-white/90 backdrop-blur-lg border border-gray-200 shadow-2xl rounded-2xl p-4 md:p-8 w-full max-w-6xl mx-auto mt-8">
       <h3 className="text-xl md:text-2xl font-bold mb-6 text-center bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
         📋 تقارير الطلاب الفردية
       </h3>
+
+      {/* Date Selector */}
+      <div className="mb-6">
+        <label className="block text-gray-700 font-semibold mb-2 text-center">
+          اختر تاريخ البداية (من هذا التاريخ إلى اليوم)
+        </label>
+        <div className="flex justify-center">
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="px-4 py-3 rounded-xl border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition text-center"
+          />
+        </div>
+        <p className="text-center text-gray-500 text-sm mt-2">
+          التقرير من: {formatDate(startDate)} إلى اليوم
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
         {students.map((student) => (
           <button
