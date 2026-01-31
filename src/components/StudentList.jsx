@@ -59,6 +59,26 @@ const StudentList = () => {
     }
   };
 
+  const handleDownloadUnpaidReport = async (student) => {
+    try {
+      const response = await api.get(`/report/unpaid/${student.name}`, {
+        responseType: "blob",
+      });
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `unpaid-lessons-${student.name}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading unpaid report:", error);
+      alert("خطأ في تحميل التقرير");
+    }
+  };
+
   return (
     <div className="bg-white/90 backdrop-blur-lg border border-gray-200 shadow-2xl rounded-2xl p-4 md:p-8 w-full max-w-7xl mx-auto">
       <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center ">
@@ -82,6 +102,9 @@ const StudentList = () => {
                 عدد الحصص
               </th>
               <th className="text-right p-3 md:p-4 font-bold text-gray-700 whitespace-nowrap">
+                حصص غير مدفوعة
+              </th>
+              <th className="text-right p-3 md:p-4 font-bold text-gray-700 whitespace-nowrap">
                 الإجراءات
               </th>
             </tr>
@@ -89,7 +112,7 @@ const StudentList = () => {
           <tbody className="bg-white">
             {loading ? (
               <tr>
-                <td colSpan="4">
+                <td colSpan="5">
                   <LoadingSpinner />
                 </td>
               </tr>
@@ -127,6 +150,17 @@ const StudentList = () => {
                         </span>
                       </td>
                       <td className="p-3 md:p-4">
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                            student.unpaid_session_count > 0
+                              ? "bg-red-100 text-red-700"
+                              : "bg-green-100 text-green-700"
+                          }`}
+                        >
+                          {student.unpaid_session_count || 0}
+                        </span>
+                      </td>
+                      <td className="p-3 md:p-4">
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleUpdate(student._id)}
@@ -157,13 +191,34 @@ const StudentList = () => {
                         </span>
                       </td>
                       <td className="p-3 md:p-4">
-                        <div className="flex gap-2">
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                            student.unpaid_session_count > 0
+                              ? "bg-red-100 text-red-700"
+                              : "bg-green-100 text-green-700"
+                          }`}
+                        >
+                          {student.unpaid_session_count || 0}
+                        </span>
+                      </td>
+                      <td className="p-3 md:p-4">
+                        <div className="flex gap-2 flex-wrap">
                           <button
                             onClick={() => setSelectedStudent(student)}
                             className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
                           >
                             📋 التفاصيل
                           </button>
+                          {student.unpaid_session_count > 0 && (
+                            <button
+                              onClick={() =>
+                                handleDownloadUnpaidReport(student)
+                              }
+                              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"
+                            >
+                              💰 تقرير
+                            </button>
+                          )}
                           <button
                             onClick={() => handleEdit(student)}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition duration-200 shadow-md"

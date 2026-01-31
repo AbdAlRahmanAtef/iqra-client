@@ -13,6 +13,7 @@ const SessionsPage = () => {
     level: "جيد",
     review_level: "جيد",
     date_gregorian: "",
+    is_paid: false,
   });
 
   const [loading, setLoading] = useState(true);
@@ -58,6 +59,7 @@ const SessionsPage = () => {
       level: session.level,
       review_level: session.review_level || "جيد",
       date_gregorian: session.date_gregorian.split("T")[0],
+      is_paid: session.is_paid || false,
     });
   };
 
@@ -69,6 +71,23 @@ const SessionsPage = () => {
     } catch (error) {
       console.error("Error updating session:", error);
       alert("خطأ في تحديث الجلسة");
+    }
+  };
+
+  const handleTogglePaid = async (session) => {
+    try {
+      await api.put(`/session/${session._id}`, {
+        student_name: session.student_name,
+        new_lesson: session.new_lesson,
+        review: session.review,
+        level: session.level,
+        review_level: session.review_level,
+        is_paid: !session.is_paid,
+      });
+      fetchSessions();
+    } catch (error) {
+      console.error("Error toggling paid status:", error);
+      alert("خطأ في تحديث حالة الدفع");
     }
   };
 
@@ -98,6 +117,9 @@ const SessionsPage = () => {
           <thead className="bg-linear-to-r from-blue-50 to-indigo-50">
             <tr className="border-b-2 border-blue-200">
               <th className="text-right p-3 md:p-4 font-bold text-gray-700 whitespace-nowrap">
+                الحالة
+              </th>
+              <th className="text-right p-3 md:p-4 font-bold text-gray-700 whitespace-nowrap">
                 التاريخ الهجري
               </th>
               <th className="text-right p-3 md:p-4 font-bold text-gray-700 whitespace-nowrap">
@@ -126,7 +148,7 @@ const SessionsPage = () => {
           <tbody className="bg-white">
             {loading ? (
               <tr>
-                <td colSpan="8">
+                <td colSpan="9">
                   <LoadingSpinner />
                 </td>
               </tr>
@@ -134,10 +156,25 @@ const SessionsPage = () => {
               sessions.map((session) => (
                 <tr
                   key={session._id}
-                  className="border-b border-gray-100 hover:bg-blue-50 transition duration-200"
+                  className={`border-b border-gray-100 hover:bg-blue-50 transition duration-200 ${
+                    session.is_paid ? "bg-green-50" : ""
+                  }`}
                 >
                   {editingSession === session._id ? (
                     <>
+                      <td className="p-3 md:p-4">
+                        <input
+                          type="checkbox"
+                          checked={editForm.is_paid}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              is_paid: e.target.checked,
+                            })
+                          }
+                          className="w-5 h-5 text-green-600 rounded focus:ring-green-500"
+                        />
+                      </td>
                       <td className="p-3 md:p-4">
                         <input
                           type="date"
@@ -253,30 +290,75 @@ const SessionsPage = () => {
                     </>
                   ) : (
                     <>
-                      <td className="p-3 md:p-4 font-medium text-gray-700">
+                      <td className="p-3 md:p-4">
+                        <button
+                          onClick={() => handleTogglePaid(session)}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                            session.is_paid
+                              ? "bg-green-500 text-white hover:bg-green-600"
+                              : "bg-gray-200 text-gray-500 hover:bg-gray-300"
+                          }`}
+                          title={
+                            session.is_paid
+                              ? "مدفوعة - اضغط للإلغاء"
+                              : "غير مدفوعة - اضغط للتأكيد"
+                          }
+                        >
+                          {session.is_paid ? "✓" : "○"}
+                        </button>
+                      </td>
+                      <td
+                        className={`p-3 md:p-4 font-medium text-gray-700 ${
+                          session.is_paid ? "line-through opacity-60" : ""
+                        }`}
+                      >
                         {session.date_hijri}
                       </td>
-                      <td className="p-3 md:p-4 text-gray-600">
+                      <td
+                        className={`p-3 md:p-4 text-gray-600 ${
+                          session.is_paid ? "line-through opacity-60" : ""
+                        }`}
+                      >
                         {new Date(session.date_gregorian).toLocaleDateString(
                           "en-GB"
                         )}
                       </td>
-                      <td className="p-3 md:p-4 font-semibold text-blue-700">
+                      <td
+                        className={`p-3 md:p-4 font-semibold text-blue-700 ${
+                          session.is_paid ? "opacity-60" : ""
+                        }`}
+                      >
                         {session.student_name}
                       </td>
-                      <td className="p-3 md:p-4 text-gray-700">
+                      <td
+                        className={`p-3 md:p-4 text-gray-700 ${
+                          session.is_paid ? "line-through opacity-60" : ""
+                        }`}
+                      >
                         {session.new_lesson}
                       </td>
                       <td className="p-3 md:p-4">
-                        <span className="inline-block text-blue-800 px-2 py-1 rounded-full text-sm font-medium">
+                        <span
+                          className={`inline-block text-blue-800 px-2 py-1 rounded-full text-sm font-medium ${
+                            session.is_paid ? "opacity-60" : ""
+                          }`}
+                        >
                           {session.level}
                         </span>
                       </td>
-                      <td className="p-3 md:p-4 text-gray-700">
+                      <td
+                        className={`p-3 md:p-4 text-gray-700 ${
+                          session.is_paid ? "line-through opacity-60" : ""
+                        }`}
+                      >
                         {session.review}
                       </td>
                       <td className="p-3 md:p-4">
-                        <span className="inline-block text-purple-800 px-2 py-1 rounded-full text-sm font-medium">
+                        <span
+                          className={`inline-block text-purple-800 px-2 py-1 rounded-full text-sm font-medium ${
+                            session.is_paid ? "opacity-60" : ""
+                          }`}
+                        >
                           {session.review_level || "-"}
                         </span>
                       </td>

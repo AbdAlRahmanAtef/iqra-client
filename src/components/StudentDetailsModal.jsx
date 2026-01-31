@@ -11,6 +11,7 @@ const StudentDetailsModal = ({ student, onClose }) => {
     level: "جيد",
     review_level: "جيد",
     date_gregorian: "",
+    is_paid: false,
   });
 
   const [loading, setLoading] = useState(false);
@@ -20,6 +21,7 @@ const StudentDetailsModal = ({ student, onClose }) => {
     review: "",
     level: "جيد",
     review_level: "جيد",
+    is_paid: false,
   });
 
   useEffect(() => {
@@ -53,6 +55,7 @@ const StudentDetailsModal = ({ student, onClose }) => {
         review: "",
         level: "جيد",
         review_level: "جيد",
+        is_paid: false,
       });
       setShowAddForm(false);
       fetchStudentSessions();
@@ -71,6 +74,7 @@ const StudentDetailsModal = ({ student, onClose }) => {
       level: session.level,
       review_level: session.review_level || "جيد",
       date_gregorian: session.date_gregorian.split("T")[0],
+      is_paid: session.is_paid || false,
     });
   };
 
@@ -89,6 +93,43 @@ const StudentDetailsModal = ({ student, onClose }) => {
     }
   };
 
+  const handleTogglePaid = async (session) => {
+    try {
+      await api.put(`/session/${session._id}`, {
+        student_name: session.student_name || student.name,
+        new_lesson: session.new_lesson,
+        review: session.review,
+        level: session.level,
+        review_level: session.review_level,
+        is_paid: !session.is_paid,
+      });
+      fetchStudentSessions();
+    } catch (error) {
+      console.error("Error toggling paid status:", error);
+      alert("خطأ في تحديث حالة الدفع");
+    }
+  };
+
+  const handleDownloadUnpaidReport = async () => {
+    try {
+      const response = await api.get(`/report/unpaid/${student.name}`, {
+        responseType: "blob",
+      });
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `unpaid-lessons-${student.name}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading unpaid report:", error);
+      alert("خطأ في تحميل التقرير");
+    }
+  };
+
   const handleDelete = async (id) => {
     if (window.confirm("هل أنت متأكد من حذف هذه الجلسة؟")) {
       try {
@@ -102,6 +143,8 @@ const StudentDetailsModal = ({ student, onClose }) => {
   };
 
   if (!student) return null;
+
+  const unpaidCount = sessions.filter((s) => !s.is_paid).length;
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start justify-center z-50 p-4 pt-[100px]">
@@ -125,6 +168,14 @@ const StudentDetailsModal = ({ student, onClose }) => {
             >
               {showAddForm ? "❌ إلغاء" : "➕ إضافة حصة جديدة"}
             </button>
+            {unpaidCount > 0 && (
+              <button
+                onClick={handleDownloadUnpaidReport}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-600 transition-colors shadow-sm flex items-center gap-2"
+              >
+                💰 تحميل تقرير غير المدفوعة ({unpaidCount})
+              </button>
+            )}
           </div>
           <button
             onClick={onClose}
@@ -139,7 +190,7 @@ const StudentDetailsModal = ({ student, onClose }) => {
           <div className="p-6 bg-blue-50 border-b border-blue-100">
             <form
               onSubmit={handleAddSession}
-              className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end"
+              className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end"
             >
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
@@ -211,6 +262,23 @@ const StudentDetailsModal = ({ student, onClose }) => {
                   <option value="ضعيف">ضعيف</option>
                 </select>
               </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="is_paid_add"
+                  checked={addForm.is_paid}
+                  onChange={(e) =>
+                    setAddForm({ ...addForm, is_paid: e.target.checked })
+                  }
+                  className="w-5 h-5 text-green-600 rounded focus:ring-green-500"
+                />
+                <label
+                  htmlFor="is_paid_add"
+                  className="text-sm font-semibold text-gray-700"
+                >
+                  مدفوعة
+                </label>
+              </div>
               <button
                 type="submit"
                 className="bg-green-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700 transition-colors shadow-md h-[42px]"
@@ -230,6 +298,9 @@ const StudentDetailsModal = ({ student, onClose }) => {
                 style={{ position: "sticky", top: 0 }}
               >
                 <tr className="border-b-2 border-blue-200">
+                  <th className="text-right p-4 font-bold text-gray-700 whitespace-nowrap">
+                    الحالة
+                  </th>
                   <th className="text-right p-4 font-bold text-gray-700 whitespace-nowrap">
                     التاريخ
                   </th>
@@ -253,13 +324,13 @@ const StudentDetailsModal = ({ student, onClose }) => {
               <tbody className="bg-white">
                 {loading ? (
                   <tr>
-                    <td colSpan="6">
+                    <td colSpan="7">
                       <LoadingSpinner />
                     </td>
                   </tr>
                 ) : sessions.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="text-center p-8 text-gray-500">
+                    <td colSpan="7" className="text-center p-8 text-gray-500">
                       لا توجد حصص مسجلة لهذا الطالب
                     </td>
                   </tr>
@@ -267,10 +338,25 @@ const StudentDetailsModal = ({ student, onClose }) => {
                   sessions.map((session) => (
                     <tr
                       key={session._id}
-                      className="border-b border-gray-100 hover:bg-blue-50 transition duration-200"
+                      className={`border-b border-gray-100 hover:bg-blue-50 transition duration-200 ${
+                        session.is_paid ? "bg-green-50" : ""
+                      }`}
                     >
                       {editingSession === session._id ? (
                         <>
+                          <td className="p-3">
+                            <input
+                              type="checkbox"
+                              checked={editForm.is_paid}
+                              onChange={(e) =>
+                                setEditForm({
+                                  ...editForm,
+                                  is_paid: e.target.checked,
+                                })
+                              }
+                              className="w-5 h-5 text-green-600 rounded focus:ring-green-500"
+                            />
+                          </td>
                           <td className="p-3">
                             <input
                               type="date"
@@ -369,24 +455,61 @@ const StudentDetailsModal = ({ student, onClose }) => {
                         </>
                       ) : (
                         <>
-                          <td className="p-3 text-gray-600">
+                          <td className="p-3">
+                            <button
+                              onClick={() => handleTogglePaid(session)}
+                              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                                session.is_paid
+                                  ? "bg-green-500 text-white hover:bg-green-600"
+                                  : "bg-gray-200 text-gray-500 hover:bg-gray-300"
+                              }`}
+                              title={
+                                session.is_paid
+                                  ? "مدفوعة - اضغط للإلغاء"
+                                  : "غير مدفوعة - اضغط للتأكيد"
+                              }
+                            >
+                              {session.is_paid ? "✓" : "○"}
+                            </button>
+                          </td>
+                          <td
+                            className={`p-3 text-gray-600 ${
+                              session.is_paid ? "line-through opacity-60" : ""
+                            }`}
+                          >
                             {new Date(
                               session.date_gregorian
                             ).toLocaleDateString("en-GB")}
                           </td>
-                          <td className="p-3 text-gray-700">
+                          <td
+                            className={`p-3 text-gray-700 ${
+                              session.is_paid ? "line-through opacity-60" : ""
+                            }`}
+                          >
                             {session.new_lesson}
                           </td>
                           <td className="p-3">
-                            <span className="inline-block text-blue-800 px-2 py-1 rounded-full text-sm font-medium">
+                            <span
+                              className={`inline-block text-blue-800 px-2 py-1 rounded-full text-sm font-medium ${
+                                session.is_paid ? "opacity-60" : ""
+                              }`}
+                            >
                               {session.level}
                             </span>
                           </td>
-                          <td className="p-3 text-gray-700">
+                          <td
+                            className={`p-3 text-gray-700 ${
+                              session.is_paid ? "line-through opacity-60" : ""
+                            }`}
+                          >
                             {session.review}
                           </td>
                           <td className="p-3">
-                            <span className="inline-block text-purple-800 px-2 py-1 rounded-full text-sm font-medium">
+                            <span
+                              className={`inline-block text-purple-800 px-2 py-1 rounded-full text-sm font-medium ${
+                                session.is_paid ? "opacity-60" : ""
+                              }`}
+                            >
                               {session.review_level || "-"}
                             </span>
                           </td>
