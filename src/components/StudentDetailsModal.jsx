@@ -134,6 +134,29 @@ const StudentDetailsModal = ({ student, onClose }) => {
     }
   };
 
+  const handleDownloadLastSevenReport = async () => {
+    setReportLoading(true);
+    try {
+      const response = await api.get(`/report/last7/${student.name}`, {
+        responseType: "blob",
+      });
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `last-7-lessons-${student.name}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading last 7 report:", error);
+      alert("خطأ في تحميل التقرير");
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
   const handleDelete = async (id) => {
     if (window.confirm("هل أنت متأكد من حذف هذه الجلسة؟")) {
       try {
@@ -209,6 +232,19 @@ const StudentDetailsModal = ({ student, onClose }) => {
                 ) : (
                   <>💰 تحميل تقرير غير المدفوعة ({unpaidCount})</>
                 )}
+              </button>
+            )}
+            {sessions.length > 0 && (
+              <button
+                onClick={handleDownloadLastSevenReport}
+                disabled={reportLoading}
+                className={`px-4 py-2 rounded-lg font-bold transition-colors shadow-sm flex items-center gap-2 ${
+                  reportLoading
+                    ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                    : "bg-purple-500 text-white hover:bg-purple-600"
+                }`}
+              >
+                {reportLoading ? "..." : "📄 آخر 7 حصص"}
               </button>
             )}
           </div>
